@@ -43,12 +43,10 @@ const AddressForm = ({ handleClick, details }) => {
 
   return (
     <div>
-      <main className="w-75 mx-auto">
+     <main className=" sm:w-75 mx-auto">
         <form onSubmit={handleSubmit(handleSave)} className="mt-2">
-          <h1 className="h3 mb-3 fw-normal text-dark text-center">
-            Permanent address
-          </h1>
-          <div className="grid grid-cols-2 gap-3">
+          <h1 className="h3 mb-3 pl-3 fw-normal text-dark">Permanent address</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="">
               <div className="form-floating">
                 <input

@@ -19,23 +19,18 @@ const Home = () => {
 
   const handleLogIn = useCallback(
     async (data) => {
-      console.log(data);
       setError("");
       const { email, password } = data;
       try {
         const user = await signInWithEmailAndPassword(auth, email, password);
         const accessToken = await user.user.accessToken;
         const id = user.user.uid;
-        localStorage.setItem("jwt", JSON.stringify({accessToken,id}));
-        // localStorage.setItem("id", JSON.stringify(id));
-
-
+        localStorage.setItem("jwt", JSON.stringify({ accessToken, id }));
         setTimeout(() => {
           navigate("/filldetails");
         }, 2000);
       } catch (error) {
-        console.log(error.message);
-        setError("Username and password incorrect");
+        setError(error.message);
       }
     },
     [navigate]
@@ -79,6 +74,9 @@ const Home = () => {
                   *Required
                 </span>
               )}
+              <Link to="/forgot-password" className="text-white py-1">
+                Forget password?
+              </Link>
               <button
                 type="submit"
                 className="btn btn-lg btn-primary mt-2 w-100"

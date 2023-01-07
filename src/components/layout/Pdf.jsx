@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
   },
 });
 const Pdf = ({ user, info, address }) => {
-  console.log(user && user);
 
   return (
     <Document>

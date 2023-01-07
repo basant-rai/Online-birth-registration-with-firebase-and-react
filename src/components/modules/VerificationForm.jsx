@@ -6,6 +6,8 @@ import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 const VerificationForm = ({ handleClick, details }) => {
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
   const [previewImage, setPreviewImage] = useState();
   const [backPreviewImage, setBackPreviewImage] = useState();
   const [frontPhoto, setFrontPhoto] = useState();
@@ -65,37 +67,41 @@ const VerificationForm = ({ handleClick, details }) => {
         await uploadBytesResumable(frontstorageRef, updateFrontPhoto);
         await uploadBytesResumable(backstorageRef, updateBackPhoto);
 
-        getDownloadURL(frontstorageRef).then((downloadURL) => {
+        await getDownloadURL(frontstorageRef).then((downloadURL) => {
           setFrontPhoto((prev) => ({ ...prev, img: downloadURL }));
         });
-        getDownloadURL(backstorageRef).then((downloadURL) => {
+        await getDownloadURL(backstorageRef).then((downloadURL) => {
           setBackPhoto((prev) => ({ ...prev, img: downloadURL }));
         });
-
-        await setDoc(doc(db, "user_document", user_id), {
-          frontPhoto,
-          backPhoto,
-          issued_date,
-          issued_district,
-          citizenship_number,
-        });
-        setTimeout(() => {
-          navigate('/downloadpdf')
-        }, 2000);
+        if (frontPhoto && backPhoto) {
+          await setDoc(doc(db, "user_document", user_id), {
+            frontPhoto,
+            backPhoto,
+            issued_date,
+            issued_district,
+            citizenship_number,
+          });
+          setIsSuccess(true);
+          setTimeout(() => {
+            navigate("/downloadpdf");
+          }, 1000);
+        } else {
+          setIsUploaded(true);
+        }
       } catch (error) {
         console.log(error);
       }
     },
-    [updateBackPhoto, updateFrontPhoto, user_id, frontPhoto, backPhoto, navigate]
+    [updateBackPhoto, updateFrontPhoto, frontPhoto, backPhoto, user_id, navigate]
   );
   return (
     <div>
-      <main className="w-75 mx-auto">
+      <main className=" sm:w-75 mx-auto">
         <form onSubmit={handleSubmit(handleSave)} className="mt-2">
-          <h1 className="h3 mb-3 fw-normal text-dark text-center">
+          <h1 className="h3 mb-3 pl-3 fw-normal text-dark">
             Document verification
           </h1>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="w-full">
               <div className="">
                 <label htmlFor="front" className="w-full">
@@ -104,8 +110,6 @@ const VerificationForm = ({ handleClick, details }) => {
                       className="rounded h-80 w-full "
                       src={previewImage}
                       alt="front"
-                      layout="fill"
-                      objectFit="cover"
                     />
                   ) : (
                     <div className=" border border-primary h-80 w-full rounded-xl text-center pt-32 text-primary text-xl">
@@ -141,8 +145,6 @@ const VerificationForm = ({ handleClick, details }) => {
                       className="rounded h-80 w-full "
                       src={backPreviewImage}
                       alt="back"
-                      layout="fill"
-                      objectFit="cover"
                     />
                   ) : (
                     <div className=" border border-primary h-80 w-full rounded-xl text-center pt-32 text-primary text-xl">
@@ -222,6 +224,27 @@ const VerificationForm = ({ handleClick, details }) => {
               )}
             </div>
           </div>
+          {isUploaded && (
+            <div>
+              <div className="checkbox mt-3">
+                <label>
+                  <input
+                    type="checkbox"
+                    value="remember-me"
+                    {...register("accept", { required: true })}
+                  />
+                  <span className="ms-1 text-primary">
+                    I accept all terms & condition
+                  </span>
+                </label>
+              </div>
+              {errors.accept && (
+                <span className="text-danger" style={{ fontSize: "12px" }}>
+                  *Required
+                </span>
+              )}
+            </div>
+          )}
           <div className="flex justify-between">
             <button
               className=" btn btn-lg btn-info mt-4"
@@ -229,18 +252,35 @@ const VerificationForm = ({ handleClick, details }) => {
             >
               Back
             </button>
-            <button
-              className=" btn btn-lg btn-primary mt-4"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <div className="spinner-border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              ) : (
-                <span>Confirm</span>
-              )}
-            </button>
+            {isUploaded ? (
+              <button
+                className="disabled:btn-dark btn btn-lg btn-primary mt-4"
+                disabled={isSubmitting || isSuccess}
+              >
+                {isSubmitting ? (
+                  <div className="spinner-border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                ) : (
+                  <span>Confirm</span>
+                )}
+              </button>
+            ) : (
+              <>
+                <button
+                  className="disabled:btn-dark btn btn-lg btn-primary mt-4"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <div className="spinner-border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  ) : (
+                    <span>Save</span>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </form>
       </main>

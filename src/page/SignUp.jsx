@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { auth, db } from "../firebase-config";
 import { useForm } from "react-hook-form";
 import "./style.css";
@@ -22,7 +25,7 @@ const SignUp = () => {
 
   const handleSignUp = async (data) => {
     setError("");
-    console.log(data);
+    setSuccess("");
     const {
       first_name,
       last_name,
@@ -41,6 +44,7 @@ const SignUp = () => {
         middle_name,
         phone_number
       );
+      await sendEmailVerification(user.user);
       await setDoc(doc(db, "user_info", user.user.uid), {
         email,
         phone_number,
@@ -52,13 +56,12 @@ const SignUp = () => {
       });
       await setDoc(doc(db, "user_address", user.user.uid), {});
       await setDoc(doc(db, "user_document", user.user.uid), {});
-      setSuccess("New user created");
+      setSuccess("Account created. Please check your email to verify");
       reset();
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.log(error.message);
       setError(error.message);
     }
   };

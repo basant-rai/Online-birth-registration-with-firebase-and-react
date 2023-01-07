@@ -1,4 +1,4 @@
-import { PDFViewer } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import Pdf from "../components/layout/Pdf";
 import { doc, getDoc } from "firebase/firestore";
 import React, { useEffect, useMemo, useState } from "react";
@@ -36,24 +36,30 @@ const PdfDownload = () => {
   };
 
   return (
-    <div className="flex">
-      {user && (
-        <>
-          <PDFViewer className="min-h-screen w-1/2">
-            {user && info && address && (
-              <Pdf user={user} info={info} address={address} />
-            )}
-          </PDFViewer>
-        </>
-      )}
-      <div className=" mx-auto">
-        <Navbar />
-        <button
-          onClick={logout}
-          className="bg-primary px-5 py-2 mt-2 rounded text-white"
+    <div className="">
+      <Navbar />
+      <div className="mx-auto container sm:px-8 bg-white rounded-xl flex flex-col items-center h-96 justify-center space-y-5">
+        {/* {user && info && address && <Table />} */}
+        <PDFDownloadLink
+          document={
+            user &&
+            info &&
+            address && <Pdf user={user} info={info} address={address} />
+          }
+          fileName="document.pdf"
         >
-          LogOut
-        </button>
+          <span className="bg-primary px-2 py-3 rounded-full text-white">
+            Download pdf
+          </span>
+        </PDFDownloadLink>
+        <div className=" mx-auto">
+          <button
+            onClick={logout}
+            className="bg-primary px-5 py-2 mt-2 rounded text-white"
+          >
+            LogOut
+          </button>
+        </div>
       </div>
     </div>
   );
