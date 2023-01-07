@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 import {
   signOut,
 } from "firebase/auth";
@@ -11,14 +11,12 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const logout = async () => {
     await signOut(auth);
+    localStorage.removeItem('jwt');
     return navigate('/')
   };
   return (
     <div>
       <Navbar />
-      <h4 className="mt-3 text-primary fw-bold fs-1 text-center ">
-          Online Birth Registration
-        </h4>
       <div className="border border-primary w-50 mx-auto px-5 py-5 rounded mt-5">
       <h3 className="mx-auto text-center mt-2">
         Please fill your details of birth certificate
